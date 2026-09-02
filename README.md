@@ -8,22 +8,42 @@
 
 ```text
 bombstation/
-├── ballistica_mcp_server.py        # MCP server for AI-assisted Ballistica modding
-├── plugins/                        # Ready-to-use BombSquad plugins & catalog
-│   ├── unlock_max_players.py       # Unlocks 8-player lobby ceiling to 999
-│   ├── unlock_all_characters.py    # Unlocks all 30+ characters for custom/local play
-│   └── README.md                   # Full plugin installation guide & architecture FAQ
+├── server_gui.py               # Zero-dependency Server Studio backend (Start/Stop/Logs/Config)
+├── run_gui.sh                  # One-click launcher script for Server Studio GUI
+├── gui/                        # Premium Dark Theme Web GUI (Vanilla CSS & JS)
+├── ballistica_mcp_server.py    # MCP server for AI-assisted Ballistica modding
+├── plugins/                    # Ready-to-use BombSquad plugins & catalog
+│   ├── unlock_max_players.py   # Unlocks 8-player lobby ceiling to 999
+│   ├── unlock_all_characters.py# Unlocks all 30+ characters for custom/local play
+│   └── README.md               # Full plugin installation guide & architecture FAQ
 ├── docs/
-│   ├── ballistica_mcp_README.md    # MCP server configuration & client guides
+│   ├── ballistica_mcp_README.md# MCP server configuration & client guides
 │   └── bombSquad_complete_guide.md # Comprehensive 14-section BombSquad dev handbook
-└── AGENTS.md                       # Coding conventions & engine architecture reference
+└── AGENTS.md                   # Coding conventions & engine architecture reference
 ```
 
 ---
 
 ## ⚡ Core Components
 
-### 🤖 1. Ballistica MCP Server
+### 🖥️ 1. BombStation Server Studio (GUI)
+A graphical dashboard to manage BombSquad servers, select executables, install plugins, edit `config.toml`, and control server execution with real-time logs.
+
+- **Quick Launch:**
+  ```bash
+  ./run_gui.sh
+  # or directly:
+  python3 server_gui.py
+  ```
+- **Features:**
+  - ⚡ **Selectable Server Executable:** Native macOS Finder picker (`osascript`) + presets for `bombsquad_server`, `bombsquad_headless`, and `BombSquad.app`.
+  - 🧩 **Selectable Plugins Directory & Installer:** Select any target mods folder (e.g. `~/Library/Application Support/BombSquad/mods/` or `ba_root/mods`), with 1-click install/uninstall for repository plugins.
+  - ⚙️ **Complete `config.toml` Editor:** Visual forms and raw TOML editor for all 25+ settings (party name, port, 999 max players, session mode, passwords, playlist, auto-balance) + instant preset profiles.
+  - 🔴/🟢 **Server Controls & Terminal:** Start, Stop, and Restart server subprocess with live streaming stdout/stderr and interactive REPL command input.
+
+---
+
+### 🤖 2. Ballistica MCP Server
 Connects AI coding assistants (Cursor, Claude Desktop, Continue.dev) to the Ballistica Cloud API to automate workspace sync, mod uploads, and syntax validation.
 
 - **Quick Start:**
@@ -37,7 +57,7 @@ Connects AI coding assistants (Cursor, Claude Desktop, Continue.dev) to the Ball
 
 ---
 
-### 🧩 2. Ready-to-Use Plugins
+### 🧩 3. Ready-to-Use Plugins
 Drop-in plugins compatible with **BombSquad API 9 (1.7.37+)** and legacy API 7/8 with full crash protection:
 
 | Plugin | Description | Target API |
