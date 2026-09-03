@@ -15,3 +15,5 @@ Thumbs.db
 
 # Executables and downloads
 bin/
+dist/
+build/

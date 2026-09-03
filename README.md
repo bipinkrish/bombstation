@@ -8,9 +8,14 @@
 
 ```text
 bombstation/
-├── server_gui.py               # Zero-dependency Server Studio backend (Start/Stop/Logs/Config)
-├── run_gui.sh                  # One-click launcher script for Server Studio GUI
-├── gui/                        # Premium Dark Theme Web GUI (Vanilla CSS & JS)
+├── bombstation_studio.py       # Main cross-platform Studio entrypoint
+├── studio/                     # Modular backend package (server, config, process, validator, asset parser)
+├── gui/                        # Sleek Minimalist Web GUI (Vanilla CSS & Modular ES6 JS)
+│   ├── js/                     # Modular components (state, 3D scene, Monaco IDE, server, config, plugins)
+│   └── style.css               # Restrained dark zinc & obsidian aesthetic
+├── scripts/
+│   └── build_export.py         # Mod build, validation, asset bundling & packaging pipeline
+├── assets/models/              # Sample .bob and .cob 3D visual & collision meshes
 ├── ballistica_mcp_server.py    # MCP server for AI-assisted Ballistica modding
 ├── plugins/                    # Ready-to-use BombSquad plugins & catalog
 │   ├── unlock_max_players.py   # Unlocks 8-player lobby ceiling to 999
@@ -26,20 +31,28 @@ bombstation/
 
 ## ⚡ Core Components
 
-### 🖥️ 1. BombStation Server Studio (GUI)
-A graphical dashboard to manage BombSquad servers, select executables, install plugins, edit `config.toml`, and control server execution with real-time logs.
+### 🖥️ 1. BombStation Studio (Native Cross-Platform Ballistica Suite & Modding IDE)
+A unified, sleek, minimalist desktop and web workspace integrating server operations with real-time modding and 3D visual arena design across **macOS, Windows, and Linux**:
 
-- **Quick Launch:**
+- **Native Cross-Platform Launch:**
   ```bash
-  ./run_gui.sh
-  # or directly:
-  python3 server_gui.py
+  python3 bombstation_studio.py
+  # or as a module:
+  python3 -m studio
   ```
-- **Features:**
-  - ⚡ **Selectable Server Executable:** Native macOS Finder picker (`osascript`) + presets for `bombsquad_server`, `bombsquad_headless`, and `BombSquad.app`.
-  - 🧩 **Selectable Plugins Directory & Installer:** Select any target mods folder (e.g. `~/Library/Application Support/BombSquad/mods/` or `ba_root/mods`), with 1-click install/uninstall for repository plugins.
-  - ⚙️ **Complete `config.toml` Editor:** Visual forms and raw TOML editor for all 25+ settings (party name, port, 999 max players, session mode, passwords, playlist, auto-balance) + instant preset profiles.
-  - 🔴/🟢 **Server Controls & Terminal:** Start, Stop, and Restart server subprocess with live streaming stdout/stderr and interactive REPL command input.
+- **Compile to Single Standalone Executable:**
+  Compile the entire application into an 8 MB standalone binary that requires no Python installed on the user's computer:
+  ```bash
+  python3 scripts/compile_executable.py
+  # Output binary: dist/bombstation_studio (or dist/bombstation_studio.exe on Windows)
+  ```
+- **Unified Modules:**
+  - ⚡ **Server Console & Operations:** Cross-platform server executable detection, live status telemetry, Start/Stop/Restart, real-time log terminal with search/filter, and interactive REPL command prompt.
+  - ⚙️ **Server Config Studio:** Complete visual forms and bidirectional raw TOML editor for all 25+ settings (party name, UDP port, 999 max players, session mode, passwords, playlist, auto-balance) with 1-click preset profiles.
+  - 🧩 **Plugin Manager:** 1-click install/uninstall for repository mods (`unlock_max_players.py`, `unlock_all_characters.py`), native system mods folder scanner (macOS/Windows/Linux), and system file manager reveal.
+  - 📝 **Ballistica Code Studio (Monaco Editor):** Embedded VS Code Monaco Editor with Python syntax highlighting, AST syntax validation against Ballistica API 9 standards, starter templates, and 1-click "Build & Export" packaging.
+  - 🪐 **3D Arena & Scene Builder (.bob & .cob Support):** Interactive 3D viewport with Three.js orbit controls, visual placement for Spawns, Flags, and Powerups, native binary decoding and rendering for `.bob` (visual meshes) and `.cob` (collision hulls), and real-time export to Ballistica Map Python coordinate dictionaries (`bascenev1.Map`).
+  - 🤖 **Ballistica AI & MCP Hub:** Status of the local MCP server, API Key configuration, and 5 registered tools (`list_workspaces`, `create_workspace`, `upload_file`, `download_file`, `validate_python_code`).
 
 ---
 

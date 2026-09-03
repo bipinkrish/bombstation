@@ -3,650 +3,568 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BombStation Server Studio — BombSquad Dedicated Server Manager</title>
+  <title>BombStation Studio — Ballistica Suite & Modding IDE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <!-- External CDNs: Three.js and Monaco Editor -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+  <!-- Modular Application ES6 Entry Point -->
+  <script type="module" src="js/main.js"></script>
 </head>
-<body>
-  <div class="app-container">
-    <!-- Top Header Bar -->
-    <header class="app-header">
-      <div class="brand-section">
-        <div class="logo-badge">
-          <span class="logo-icon">💣</span>
-          <span class="logo-glow"></span>
-        </div>
-        <div class="brand-text">
-          <div class="brand-title-wrap">
-            <h1 class="brand-title">BombStation</h1>
-            <span class="version-tag">Studio v1.0</span>
-          </div>
-          <p class="brand-subtitle">BombSquad / Ballistica Server & Mod Manager</p>
+<body class="studio-body">
+  <div class="studio-shell">
+
+    <!-- ================================================================= -->
+    <!-- 1. LEFT ICON RAIL                                                 -->
+    <!-- ================================================================= -->
+    <aside class="app-rail">
+      <div class="rail-top">
+        <div class="studio-logo" title="BombStation Studio">
+          <span class="logo-emoji">💣</span>
         </div>
       </div>
 
-      <!-- Live Server Status Badge -->
-      <div class="header-status-card" id="status-card">
-        <div class="status-indicator">
-          <span class="status-dot" id="status-dot"></span>
-          <span class="status-ping" id="status-ping"></span>
-        </div>
-        <div class="status-meta">
-          <div class="status-label-wrap">
-            <span class="status-label" id="status-label">STOPPED</span>
-            <span class="status-pid" id="status-pid"></span>
-          </div>
-          <div class="status-details">
-            <span id="status-uptime">Uptime: 00:00:00</span>
-            <span class="meta-sep">•</span>
-            <span id="status-port-display">Port: 43210</span>
-          </div>
-        </div>
+      <nav class="rail-nav" role="tablist">
+        <button class="rail-btn active" data-tab="tab-server" onclick="window.BS_Main.switchStudioTab('tab-server')" title="Server Operations & Console">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          <span class="rail-label">Server</span>
+        </button>
+
+        <button class="rail-btn" data-tab="tab-config" onclick="window.BS_Main.switchStudioTab('tab-config')" title="Server Configuration (config.toml)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="rail-label">Config</span>
+        </button>
+
+        <button class="rail-btn" data-tab="tab-plugins" onclick="window.BS_Main.switchStudioTab('tab-plugins')" title="Plugins & Modding">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          <span class="rail-label">Mods</span>
+        </button>
+
+        <div class="rail-divider"></div>
+
+        <button class="rail-btn" data-tab="tab-code" onclick="window.BS_Main.switchStudioTab('tab-code')" title="Code Studio (Monaco Editor)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span class="rail-label">Code</span>
+        </button>
+
+        <button class="rail-btn" data-tab="tab-scene" onclick="window.BS_Main.switchStudioTab('tab-scene')" title="3D Arena & Scene Builder (.bob/.cob)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span class="rail-label">3D Scene</span>
+        </button>
+
+        <button class="rail-btn" data-tab="tab-mcp" onclick="window.BS_Main.switchStudioTab('tab-mcp')" title="Ballistica MCP Hub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+          <span class="rail-label">AI Hub</span>
+        </button>
+      </nav>
+
+      <div class="rail-bottom">
+        <div class="status-indicator-dot" id="rail-server-dot" title="Server Offline"></div>
+        <span class="api-tag">API 9</span>
       </div>
+    </aside>
 
-      <!-- Quick Action Controls -->
-      <div class="header-actions">
-        <button class="btn btn-success" id="btn-start-server" onclick="startServer()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          <span>Start Server</span>
-        </button>
-        <button class="btn btn-danger" id="btn-stop-server" onclick="stopServer()" disabled>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
-          <span>Stop</span>
-        </button>
-        <button class="btn btn-outline" id="btn-restart-server" onclick="restartServer()" title="Restart Server" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          <span>Restart</span>
-        </button>
-      </div>
-    </header>
+    <!-- ================================================================= -->
+    <!-- 2. MAIN WORKSPACE                                                 -->
+    <!-- ================================================================= -->
+    <div class="studio-main">
 
-    <!-- Main Navigation Tabs -->
-    <nav class="main-tabs" role="tablist">
-      <button class="tab-btn active" data-tab="tab-paths" onclick="switchTab('tab-paths')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/></svg>
-        <span>Executable & Paths</span>
-        <span class="tab-badge" id="paths-badge">Ready</span>
-      </button>
-      <button class="tab-btn" data-tab="tab-plugins" onclick="switchTab('tab-plugins')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-        <span>Plugins & Modding</span>
-        <span class="tab-badge info" id="plugins-count-badge">2 Available</span>
-      </button>
-      <button class="tab-btn" data-tab="tab-config" onclick="switchTab('tab-config')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>Server Config</span>
-        <span class="tab-badge" id="config-badge">config.toml</span>
-      </button>
-      <button class="tab-btn" data-tab="tab-console" onclick="switchTab('tab-console')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-        <span>Live Console & Terminal</span>
-        <span class="tab-badge success" id="console-live-badge">Live</span>
-      </button>
-    </nav>
-
-    <!-- TAB CONTENTS -->
-    <main class="content-container">
-
-      <!-- =============================================================== -->
-      <!-- TAB 1: EXECUTABLE & PATHS SETUP                                  -->
-      <!-- =============================================================== -->
-      <section id="tab-paths" class="tab-pane active">
-        <div class="section-intro">
-          <h2>Server Executable & Target Paths</h2>
-          <p>Configure which executable binary runs the server, where plugins are installed, and which config file to apply.</p>
-        </div>
-
-        <div class="card-grid">
-          <!-- Executable Card -->
-          <div class="studio-card">
-            <div class="card-header">
-              <div class="card-icon-title">
-                <span class="card-icon">⚡</span>
-                <div>
-                  <h3>Server Executable</h3>
-                  <span class="card-hint">Binary script or headless Ballistica runtime</span>
-                </div>
-              </div>
-              <span class="status-chip success" id="exe-status-chip">Detected</span>
-            </div>
-            <div class="card-body">
-              <div class="input-action-group">
-                <input type="text" id="input-executable" class="form-control mono" placeholder="/path/to/bombsquad_server">
-                <button class="btn btn-secondary" onclick="browsePath('executable', 'file', 'Select BombSquad Server Executable')">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <span>Browse...</span>
-                </button>
-              </div>
-
-              <div class="preset-links">
-                <span class="preset-label">Quick Presets:</span>
-                <div class="preset-chips" id="exe-presets">
-                  <!-- Populated dynamically -->
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Plugins Folder Card -->
-          <div class="studio-card">
-            <div class="card-header">
-              <div class="card-icon-title">
-                <span class="card-icon">📁</span>
-                <div>
-                  <h3>Target Plugins / Mods Directory</h3>
-                  <span class="card-hint">Folder where server & game load Python plugins from</span>
-                </div>
-              </div>
-              <button class="btn btn-ghost btn-sm" onclick="openTargetFolderInFinder()" title="Reveal in macOS Finder">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                <span>Reveal in Finder</span>
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="input-action-group">
-                <input type="text" id="input-plugins-dir" class="form-control mono" placeholder="~/Library/Application Support/BombSquad/mods">
-                <button class="btn btn-secondary" onclick="browsePath('plugins-dir', 'directory', 'Select Target Mods Directory')">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <span>Browse...</span>
-                </button>
-              </div>
-
-              <div class="preset-links">
-                <span class="preset-label">Standard Locations:</span>
-                <div class="preset-chips" id="plugin-dir-presets">
-                  <!-- Populated dynamically -->
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Configuration File Card -->
-          <div class="studio-card full-width">
-            <div class="card-header">
-              <div class="card-icon-title">
-                <span class="card-icon">⚙️</span>
-                <div>
-                  <h3>Server Configuration File (config.toml)</h3>
-                  <span class="card-hint">Direct path to the TOML configuration file loaded by the server manager</span>
-                </div>
-              </div>
-              <span class="status-chip" id="config-status-chip">Loaded</span>
-            </div>
-            <div class="card-body">
-              <div class="input-action-group">
-                <input type="text" id="input-config-path" class="form-control mono" placeholder="/path/to/config.toml">
-                <button class="btn btn-secondary" onclick="browsePath('config-path', 'file', 'Select BombSquad config.toml')">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  <span>Browse...</span>
-                </button>
-                <button class="btn btn-outline" onclick="loadConfigFile()">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-                  <span>Reload File</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =============================================================== -->
-      <!-- TAB 2: PLUGIN MANAGER & INSTALLER                                -->
-      <!-- =============================================================== -->
-      <section id="tab-plugins" class="tab-pane">
-        <div class="section-intro-with-actions">
-          <div class="section-intro">
-            <h2>Plugin Manager & Mod Installer</h2>
-            <p>One-click installation of BombStation verified plugins and community tools directly into your selected mods directory.</p>
-          </div>
-          <div class="intro-actions">
-            <button class="btn btn-primary" onclick="installAllPlugins()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-              <span>Install All Plugins</span>
-            </button>
-            <button class="btn btn-outline" onclick="openTargetFolderInFinder()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              <span>Open Folder in Finder</span>
-            </button>
-            <button class="btn btn-ghost" onclick="refreshPlugins()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              <span>Refresh</span>
-            </button>
+      <!-- Header -->
+      <header class="studio-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <span class="crumb-brand">BombStation Studio</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-view" id="active-view-name">Server Operations</span>
           </div>
         </div>
 
-        <!-- Target mods folder indicator banner -->
-        <div class="active-folder-banner">
-          <div class="folder-meta">
-            <span class="folder-icon">📂</span>
+        <div class="header-center">
+          <div class="global-telemetry-pill" id="status-card">
+            <span class="pill-dot" id="status-dot"></span>
+            <span class="pill-label" id="status-label">STOPPED</span>
+            <span class="pill-sep">•</span>
+            <span class="pill-uptime" id="status-uptime">00:00:00</span>
+            <span class="pill-sep">•</span>
+            <span class="pill-port" id="status-port-display">Port: 43210</span>
+            <span class="pill-pid" id="status-pid"></span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="server-action-group">
+            <button class="btn btn-primary" id="btn-start-server" onclick="window.BS_Server.startServer()">Start Server</button>
+            <button class="btn btn-secondary" id="btn-stop-server" onclick="window.BS_Server.stopServer()" disabled>Stop</button>
+            <button class="btn btn-ghost" id="btn-restart-server" onclick="window.BS_Server.restartServer()" disabled>Restart</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Viewport Panes -->
+      <main class="studio-viewport">
+
+        <!-- TAB 1: SERVER OPERATIONS -->
+        <section id="tab-server" class="studio-pane active">
+          <div class="server-layout">
+            <div class="panel-card server-paths-card">
+              <div class="panel-header">
+                <h3>Launch Executables &amp; Paths</h3>
+                <span class="badge-subtle" id="paths-badge">Ready</span>
+              </div>
+              <div class="paths-grid">
+                <div class="path-field">
+                  <label>Server Executable</label>
+                  <div class="input-browse-group">
+                    <input type="text" id="input-executable" class="form-input mono" placeholder="/path/to/bombsquad_server">
+                    <button class="btn btn-secondary" onclick="window.BS_Server.browsePath('executable')">Browse</button>
+                  </div>
+                  <div class="preset-chips-strip" id="exe-presets"></div>
+                </div>
+
+                <div class="path-field">
+                  <label>Active Mods Folder</label>
+                  <div class="input-browse-group">
+                    <input type="text" id="input-plugins-dir" class="form-input mono" placeholder="~/Library/Application Support/BombSquad/mods">
+                    <button class="btn btn-secondary" onclick="window.BS_Server.browsePath('plugins')">Browse</button>
+                    <button class="btn btn-ghost" onclick="window.BS_Plugins.openTargetFolder()">Finder</button>
+                  </div>
+                  <div class="preset-chips-strip" id="plugin-dir-presets"></div>
+                </div>
+
+                <div class="path-field">
+                  <label>Server config.toml</label>
+                  <div class="input-browse-group">
+                    <input type="text" id="input-config-path" class="form-input mono" placeholder="/path/to/config.toml">
+                    <button class="btn btn-secondary" onclick="window.BS_Server.browsePath('config')">Browse</button>
+                  </div>
+                  <div class="preset-chips-strip" id="config-presets"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Terminal & REPL -->
+            <div class="panel-card terminal-card">
+              <div class="terminal-header">
+                <div class="term-title-wrap">
+                  <span class="term-dot live"></span>
+                  <span class="term-title">Console Output</span>
+                  <span class="term-counter" id="term-log-counter">0 events</span>
+                </div>
+                <div class="term-actions">
+                  <input type="text" id="terminal-search" class="term-search" placeholder="Filter..." oninput="window.BS_Server.filterLogs()">
+                  <label class="term-toggle">
+                    <input type="checkbox" id="terminal-auto-scroll" checked onchange="window.BS_Server.toggleAutoScroll(this.checked)">
+                    <span>Auto-scroll</span>
+                  </label>
+                  <button class="btn btn-xs btn-ghost" onclick="window.BS_Server.clearTerminal()">Clear</button>
+                </div>
+              </div>
+
+              <div class="terminal-body" id="terminal-output">
+                <div class="term-line dim">BombStation Studio console ready. Select executable and click Start Server.</div>
+              </div>
+
+              <div class="terminal-stdin">
+                <span class="stdin-prompt">&gt;</span>
+                <input type="text" id="input-command" class="stdin-input" placeholder="Execute Python / Ballistica REPL command — Press Enter" onkeydown="window.BS_Server.handleCommandKey(event)">
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_Server.sendCommand()">Send</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: SERVER CONFIG -->
+        <section id="tab-config" class="studio-pane">
+          <div class="config-layout">
+            <div class="config-top-bar">
+              <div class="config-title-group">
+                <h2>Server Configuration</h2>
+                <span class="badge-subtle">config.toml</span>
+              </div>
+              <div class="config-controls">
+                <div class="view-toggle">
+                  <button class="toggle-btn active" id="btn-mode-form" onclick="window.BS_Config.setConfigViewMode('form')">Visual Form</button>
+                  <button class="toggle-btn" id="btn-mode-raw" onclick="window.BS_Config.setConfigViewMode('raw')">Raw TOML</button>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_Config.applyConfigPreset('default_ffa')">Default FFA</button>
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_Config.applyConfigPreset('max_players')">999 Players</button>
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_Config.applyConfigPreset('tourney')">LAN Tourney</button>
+                <button class="btn btn-primary btn-sm" id="btn-save-config" onclick="window.BS_Config.saveConfigFile()">Save Config</button>
+              </div>
+            </div>
+
+            <div id="config-form-view" class="config-form-container">
+              <div class="cfg-card">
+                <div class="cfg-card-header">
+                  <h4>General Identity</h4>
+                </div>
+                <div class="cfg-fields-grid">
+                  <div class="cfg-field">
+                    <label>Party Name</label>
+                    <input type="text" id="cfg-party_name" class="form-control" placeholder="BombSquad FFA Party">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Public Visibility</label>
+                    <select id="cfg-party_is_public" class="form-control">
+                      <option value="true">Public</option>
+                      <option value="false">Private / LAN</option>
+                    </select>
+                  </div>
+                  <div class="cfg-field">
+                    <label>Join Password</label>
+                    <input type="text" id="cfg-password" class="form-control" placeholder="Leave blank for public">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Public IPv4 Address</label>
+                    <input type="text" id="cfg-public_ipv4_address" class="form-control mono" placeholder="Auto-detect">
+                  </div>
+                  <div class="cfg-field full-width">
+                    <label>Stats URL</label>
+                    <input type="text" id="cfg-stats_url" class="form-control" placeholder="https://stats.mysite.com">
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg-card">
+                <div class="cfg-card-header">
+                  <h4>Rules &amp; Gameplay</h4>
+                </div>
+                <div class="cfg-fields-grid">
+                  <div class="cfg-field">
+                    <label>Session Type</label>
+                    <select id="cfg-session_type" class="form-control">
+                      <option value="ffa">Free-For-All</option>
+                      <option value="teams">Teams</option>
+                      <option value="coop">Co-op</option>
+                    </select>
+                  </div>
+                  <div class="cfg-field">
+                    <label>Player Ceiling Override</label>
+                    <input type="number" id="cfg-session_max_players_override" class="form-control" placeholder="8 or 999">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Playlist Code</label>
+                    <input type="number" id="cfg-playlist_code" class="form-control" placeholder="Default">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Playlist Shuffle</label>
+                    <select id="cfg-playlist_shuffle" class="form-control">
+                      <option value="true">Enabled</option>
+                      <option value="false">Disabled</option>
+                    </select>
+                  </div>
+                  <div class="cfg-field">
+                    <label>Teams Series Length</label>
+                    <input type="number" id="cfg-teams_series_length" class="form-control" placeholder="7">
+                  </div>
+                  <div class="cfg-field">
+                    <label>FFA Series Length</label>
+                    <input type="number" id="cfg-ffa_series_length" class="form-control" placeholder="24">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Auto-Balance Teams</label>
+                    <select id="cfg-auto_balance_teams" class="form-control">
+                      <option value="true">Enabled</option>
+                      <option value="false">Disabled</option>
+                    </select>
+                  </div>
+                  <div class="cfg-field">
+                    <label>Allow Punch / Grab</label>
+                    <select id="cfg-allow_punch_grab" class="form-control">
+                      <option value="true">Allowed</option>
+                      <option value="false">Disallowed</option>
+                    </select>
+                  </div>
+                  <div class="cfg-field">
+                    <label>Co-op Campaign</label>
+                    <input type="text" id="cfg-coop_campaign" class="form-control" placeholder="Easy">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Co-op Level</label>
+                    <input type="text" id="cfg-coop_level" class="form-control" placeholder="Onslaught Training">
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg-card">
+                <div class="cfg-card-header">
+                  <h4>Network &amp; Limits</h4>
+                </div>
+                <div class="cfg-fields-grid">
+                  <div class="cfg-field">
+                    <label>UDP Port</label>
+                    <input type="number" id="cfg-port" class="form-control mono" placeholder="43210">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Max Party Size</label>
+                    <input type="number" id="cfg-max_party_size" class="form-control" placeholder="6">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Protocol Version</label>
+                    <input type="number" id="cfg-protocol_version" class="form-control" placeholder="38">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Authenticate Clients</label>
+                    <select id="cfg-authenticate_clients" class="form-control">
+                      <option value="true">Require Accounts</option>
+                      <option value="false">Allow Anonymous</option>
+                    </select>
+                  </div>
+                  <div class="cfg-field full-width">
+                    <label>Admin IDs (comma separated)</label>
+                    <input type="text" id="cfg-admins" class="form-control mono" placeholder="pb-yourID">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Queue System</label>
+                    <select id="cfg-enable_queue" class="form-control">
+                      <option value="true">Enabled</option>
+                      <option value="false">Disabled</option>
+                    </select>
+                  </div>
+                  <div class="cfg-field">
+                    <label>Vote Kick</label>
+                    <select id="cfg-enable_default_kick_voting" class="form-control">
+                      <option value="true">Enabled</option>
+                      <option value="false">Disabled</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cfg-card">
+                <div class="cfg-card-header">
+                  <h4>Process Lifetime</h4>
+                </div>
+                <div class="cfg-fields-grid">
+                  <div class="cfg-field">
+                    <label>Clean Exit Minutes</label>
+                    <input type="number" id="cfg-clean_exit_minutes" class="form-control" placeholder="60">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Idle Exit Minutes</label>
+                    <input type="number" id="cfg-idle_exit_minutes" class="form-control" placeholder="20">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Unclean Exit Minutes</label>
+                    <input type="number" id="cfg-unclean_exit_minutes" class="form-control" placeholder="90">
+                  </div>
+                  <div class="cfg-field">
+                    <label>Bytecode Cache</label>
+                    <select id="cfg-dont_write_bytecode" class="form-control">
+                      <option value="false">Write Bytecode (.pyc)</option>
+                      <option value="true">Disable Bytecode</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="config-raw-view" style="display: none;">
+              <textarea id="raw-config-editor" class="raw-toml-input mono" spellcheck="false"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: PLUGINS -->
+        <section id="tab-plugins" class="studio-pane">
+          <div class="plugins-layout">
+            <div class="plugins-top-bar">
+              <div>
+                <h2>Plugins &amp; Mod Management</h2>
+                <p class="section-desc">Manage verified repository plugins and user mods in target folder.</p>
+              </div>
+              <div class="plugins-top-actions">
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_Plugins.openTargetFolder()">Finder</button>
+                <button class="btn btn-primary btn-sm" onclick="window.BS_Plugins.installAllPlugins()">Install All</button>
+              </div>
+            </div>
+
+            <div class="plugins-columns-grid">
+              <div class="panel-card">
+                <div class="panel-header">
+                  <h3>Repository Plugins</h3>
+                </div>
+                <div class="plugins-list" id="repo-plugins-list"></div>
+              </div>
+
+              <div class="panel-card">
+                <div class="panel-header">
+                  <h3>Installed Mods in Target Directory</h3>
+                  <button class="btn btn-xs btn-ghost" onclick="window.BS_Plugins.refreshPlugins()">Refresh</button>
+                </div>
+                <div class="plugins-list" id="installed-plugins-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: CODE STUDIO -->
+        <section id="tab-code" class="studio-pane">
+          <div class="code-studio-layout">
+            <div class="code-toolbar">
+              <div class="code-toolbar-left">
+                <span class="toolbar-label">File:</span>
+                <select id="studio-file-select" class="form-control-sm" onchange="window.BS_CodeStudio.onStudioFileSelected(this.value)">
+                  <option value="">-- Open File from Mods --</option>
+                </select>
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_CodeStudio.newStudioScript()">+ New</button>
+                
+                <span class="toolbar-label" style="margin-left: 6px;">Template:</span>
+                <select id="studio-template-select" class="form-control-sm" onchange="window.BS_CodeStudio.onStudioTemplateSelected(this.value)">
+                  <option value="">Choose Starter...</option>
+                  <option value="minigame">Custom Mini-Game (Activity)</option>
+                  <option value="powerup">Custom Powerup Plugin</option>
+                  <option value="spaz_appearance">Custom Character Skin</option>
+                </select>
+              </div>
+
+              <div class="code-toolbar-right">
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_CodeStudio.validateStudioCode()">Validate Syntax</button>
+                <button class="btn btn-secondary btn-sm" onclick="window.BS_CodeStudio.exportModPackage()" title="Build distribution ZIP package via scripts/build_export.py">Build &amp; Export</button>
+                <button class="btn btn-primary btn-sm" onclick="window.BS_CodeStudio.saveAndDeployScript()">Save &amp; Deploy</button>
+              </div>
+            </div>
+
+            <div class="editor-workspace">
+              <div id="monaco-editor-container" class="monaco-container"></div>
+              <textarea id="fallback-code-editor" class="fallback-editor mono" style="display: none;" spellcheck="false"></textarea>
+            </div>
+
+            <div class="diagnostic-tray" id="studio-diagnostic-tray">
+              <div class="tray-header" onclick="window.BS_CodeStudio.toggleDiagnosticTray()">
+                <div class="tray-title-group">
+                  <span class="diag-status-pill success" id="diag-pill">✓ Ready</span>
+                  <span class="diag-text" id="diag-summary">Ballistica API 9 Validator ready.</span>
+                </div>
+              </div>
+              <div class="tray-body" id="diag-details"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 5: 3D ARENA STUDIO WITH .BOB & .COB SUPPORT -->
+        <section id="tab-scene" class="studio-pane">
+          <div class="scene-studio-layout">
+            <div class="scene-viewport-area">
+              <div id="scene-canvas-container" class="scene-canvas-wrap"></div>
+
+              <!-- Floating 3D Toolbar with .bob / .cob Import -->
+              <div class="scene-floating-toolbar">
+                <div class="tool-group">
+                  <span class="tool-title">Preset:</span>
+                  <select id="arena-preset-select" class="form-control-xs" onchange="window.BS_SceneStudio.changeArenaPreset(this.value)">
+                    <option value="diorama">Diorama Base</option>
+                    <option value="rampage">Floating Rock</option>
+                    <option value="football">Pitch</option>
+                    <option value="crag">Castle</option>
+                  </select>
+                </div>
+                <div class="tool-sep"></div>
+                <div class="tool-group">
+                  <!-- Asset Import Button -->
+                  <input type="file" id="asset-file-input" accept=".bob,.cob" style="display: none;" onchange="window.BS_SceneStudio.loadCustomAssetFile(this.files[0])">
+                  <button class="tool-btn" onclick="document.getElementById('asset-file-input').click()" title="Import Ballistica 3D Mesh (.bob) or Collision Hull (.cob)">
+                    📂 Import .bob / .cob
+                  </button>
+                  <button class="tool-btn ghost" onclick="window.BS_SceneStudio.loadSampleAsset('bob')" title="Load Sample Visual Mesh">
+                    Sample .bob
+                  </button>
+                  <button class="tool-btn ghost" onclick="window.BS_SceneStudio.loadSampleAsset('cob')" title="Load Sample Collision Mesh">
+                    Sample .cob
+                  </button>
+                </div>
+                <div class="tool-sep"></div>
+                <div class="tool-group">
+                  <button class="tool-btn" onclick="window.BS_SceneStudio.addSceneNode('spawn', 1)">+ Spawn 1</button>
+                  <button class="tool-btn" onclick="window.BS_SceneStudio.addSceneNode('spawn', 2)">+ Spawn 2</button>
+                  <button class="tool-btn" onclick="window.BS_SceneStudio.addSceneNode('spawn_ffa')">+ FFA</button>
+                  <button class="tool-btn" onclick="window.BS_SceneStudio.addSceneNode('flag', 1)">+ Flag 1</button>
+                  <button class="tool-btn" onclick="window.BS_SceneStudio.addSceneNode('flag', 2)">+ Flag 2</button>
+                  <button class="tool-btn" onclick="window.BS_SceneStudio.addSceneNode('powerup')">+ Powerup</button>
+                </div>
+                <div class="tool-sep"></div>
+                <div class="tool-group">
+                  <button class="tool-btn ghost" onclick="window.BS_SceneStudio.resetSceneCamera()">Reset Cam</button>
+                  <button class="tool-btn ghost" onclick="window.BS_SceneStudio.clearAllSceneNodes()">Clear</button>
+                </div>
+              </div>
+
+              <div class="scene-hint-badge">
+                <span>Left Drag: Orbit • Right Drag: Pan • Scroll: Zoom • Drop .bob/.cob onto viewport</span>
+              </div>
+            </div>
+
+            <!-- Inspector -->
+            <aside class="scene-inspector-sidebar">
+              <div class="inspector-header">
+                <h3>Node Coordinates</h3>
+                <span class="badge-subtle" id="scene-node-count">0 nodes</span>
+              </div>
+
+              <div class="inspector-node-list" id="scene-nodes-list"></div>
+
+              <div class="inspector-export-section">
+                <div class="export-header">
+                  <h4>Ballistica Python Dict</h4>
+                  <div class="export-actions">
+                    <button class="btn btn-xs btn-secondary" onclick="window.BS_SceneStudio.copySceneCoordinates()">Copy Dict</button>
+                    <button class="btn btn-xs btn-primary" onclick="window.BS_SceneStudio.sendCoordinatesToCodeStudio()">Send to Code</button>
+                  </div>
+                </div>
+                <pre class="export-code-preview mono" id="scene-python-output"># Point definitions will appear here...</pre>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- TAB 6: MCP HUB -->
+        <section id="tab-mcp" class="studio-pane">
+          <div class="mcp-hub-layout">
             <div>
-              <span class="folder-title">Active Mods Target Directory:</span>
-              <code class="folder-path" id="plugins-active-folder">Loading...</code>
+              <h2>Ballistica Model Context Protocol (MCP) Hub</h2>
+              <p class="section-desc">Connect AI coding assistants directly to Ballistica Cloud and local dev environments.</p>
             </div>
-          </div>
-          <span class="folder-exists-badge" id="folder-status-badge">Checking...</span>
-        </div>
 
-        <!-- Plugins Card Grid -->
-        <div class="plugins-grid" id="plugins-container">
-          <!-- Populated dynamically via JS -->
-        </div>
-
-        <!-- In-Game Dev Console Guide Card -->
-        <div class="guide-card">
-          <div class="guide-header">
-            <span class="guide-icon">💡</span>
-            <h3>How Plugins Load in BombSquad & Ballistica</h3>
-          </div>
-          <div class="guide-body">
-            <p>BombSquad automatically scans and compiles all <code>.py</code> files in your mods directory. Plugins exported with <code># ba_meta export babase.Plugin</code> are registered directly into the game engine's internal mod catalog.</p>
-            <div class="guide-tips">
-              <div class="tip-item">
-                <span class="tip-badge">Tip 1</span>
-                <span>Once installed, enable plugins in-game under <strong>Settings</strong> → <strong>Plugins</strong>.</span>
-              </div>
-              <div class="tip-item">
-                <span class="tip-badge">Tip 2</span>
-                <span>For dedicated headless servers, plugins placed in the target mods directory are auto-loaded at startup.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =============================================================== -->
-      <!-- TAB 3: SERVER CONFIGURATION                                      -->
-      <!-- =============================================================== -->
-      <section id="tab-config" class="tab-pane">
-        <div class="section-intro-with-actions">
-          <div class="section-intro">
-            <h2>Server Configuration (config.toml)</h2>
-            <p>Complete control over Ballistica game modes, player limits, network ports, security, and lifecycle management.</p>
-          </div>
-          <div class="intro-actions">
-            <!-- Mode Switcher -->
-            <div class="view-mode-toggle">
-              <button class="toggle-btn active" id="btn-mode-form" onclick="setConfigViewMode('form')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                <span>Visual Form</span>
-              </button>
-              <button class="toggle-btn" id="btn-mode-raw" onclick="setConfigViewMode('raw')">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                <span>Raw TOML Editor</span>
-              </button>
-            </div>
-            <button class="btn btn-success" onclick="saveConfiguration()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              <span>Save & Apply</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Presets Quick Bar -->
-        <div class="presets-bar">
-          <span class="presets-title">⚡ Quick Profiles:</span>
-          <button class="btn-profile" onclick="applyPresetProfile('mega999')">
-            <span class="profile-emoji">🚀</span>
-            <span>Mega 999 Players</span>
-          </button>
-          <button class="btn-profile" onclick="applyPresetProfile('ffa_standard')">
-            <span class="profile-emoji">⚔️</span>
-            <span>Standard FFA (8P)</span>
-          </button>
-          <button class="btn-profile" onclick="applyPresetProfile('teams_best7')">
-            <span class="profile-emoji">🛡️</span>
-            <span>Teams Best-of-7</span>
-          </button>
-          <button class="btn-profile" onclick="applyPresetProfile('coop')">
-            <span class="profile-emoji">🤖</span>
-            <span>Co-op Campaign</span>
-          </button>
-          <button class="btn-profile" onclick="applyPresetProfile('lan_private')">
-            <span class="profile-emoji">🔒</span>
-            <span>Private LAN Only</span>
-          </button>
-        </div>
-
-        <!-- VISUAL FORM CONTAINER -->
-        <div id="config-form-container" class="config-sections-wrap">
-          
-          <!-- Category 1: Server Identity & Visibility -->
-          <div class="config-card">
-            <div class="config-card-header">
-              <span class="category-icon">🌐</span>
-              <div>
-                <h3>Server Identity & Public Visibility</h3>
-                <span class="category-desc">How your server appears in the global BombSquad party browser</span>
-              </div>
-            </div>
-            <div class="form-grid">
-              <div class="form-group span-2">
-                <label for="cfg-party_name">Party Name</label>
-                <input type="text" id="cfg-party_name" class="form-control" placeholder="e.g. BombSquad FFA Party">
-                <small>The public name shown in the server list.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-party_is_public">Public Party Listing</label>
-                <select id="cfg-party_is_public" class="form-control">
-                  <option value="true">Public (Show in Global List)</option>
-                  <option value="false">Private (Direct IP / LAN Only)</option>
-                </select>
-                <small>Allows internet players to join without entering IP.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-password">Party Password</label>
-                <input type="text" id="cfg-password" class="form-control" placeholder="Leave empty for public join">
-                <small>Required password for clients to connect.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-public_ipv4_address">Public IPv4 Address</label>
-                <input type="text" id="cfg-public_ipv4_address" class="form-control mono" placeholder="Auto-detect or e.g. 1.2.3.4">
-                <small>Required for master server if your ISP uses IPv6 by default.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-stats_url">Stats URL (Optional)</label>
-                <input type="text" id="cfg-stats_url" class="form-control" placeholder="https://mysite.com/stats?p=${ACCOUNT}">
-                <small>Custom stats webpage shown in server browser.</small>
-              </div>
-            </div>
-          </div>
-
-          <!-- Category 2: Gameplay Rules & Session -->
-          <div class="config-card">
-            <div class="config-card-header">
-              <span class="category-icon">🎮</span>
-              <div>
-                <h3>Gameplay Rules & Match Session</h3>
-                <span class="category-desc">Game mode, player limits, custom playlists, and game dynamics</span>
-              </div>
-            </div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="cfg-session_type">Session Mode</label>
-                <select id="cfg-session_type" class="form-control">
-                  <option value="ffa">Free-for-All (FFA)</option>
-                  <option value="teams">Teams Mode</option>
-                  <option value="coop">Cooperative Campaign (Co-op)</option>
-                </select>
-                <small>Base game session architecture.</small>
-              </div>
-
-              <div class="form-group">
-                <div class="label-with-badge">
-                  <label for="cfg-session_max_players_override">Max Players Limit</label>
-                  <span class="pill-badge highlight" onclick="document.getElementById('cfg-session_max_players_override').value = 999">Set 999 🔥</span>
+            <div class="mcp-cards-grid">
+              <div class="panel-card">
+                <div class="mcp-card-top">
+                  <span class="mcp-badge" id="mcp-server-status-badge">Checking...</span>
+                  <h4>MCP Server</h4>
                 </div>
-                <input type="number" id="cfg-session_max_players_override" class="form-control" placeholder="8 or 999">
-                <small>Active player limit in matches. Use <strong>999</strong> with unlock plugin.</small>
+                <p class="mcp-desc">Local Python stdio server bridging coding agents with Ballistica.</p>
+                <div class="mcp-path mono" id="mcp-server-path">ballistica_mcp_server.py</div>
               </div>
 
-              <div class="form-group">
-                <label for="cfg-playlist_code">Playlist Code (Share Code)</label>
-                <input type="number" id="cfg-playlist_code" class="form-control" placeholder="e.g. 12345 (Leave empty for default)">
-                <small>Numeric code exported from BombSquad playlist editor.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-playlist_shuffle">Playlist Shuffle</label>
-                <select id="cfg-playlist_shuffle" class="form-control">
-                  <option value="true">Shuffle Games Randomly</option>
-                  <option value="false">Play in Sequential Order</option>
-                </select>
-                <small>Order of minigames within the playlist.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-teams_series_length">Teams Series Length</label>
-                <input type="number" id="cfg-teams_series_length" class="form-control" placeholder="7">
-                <small>Wins required for tournament series (e.g. 7 = Best of 7).</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-ffa_series_length">FFA Points to Win</label>
-                <input type="number" id="cfg-ffa_series_length" class="form-control" placeholder="24">
-                <small>Points required to crown match champion in FFA.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-auto_balance_teams">Auto-Balance Teams</label>
-                <select id="cfg-auto_balance_teams" class="form-control">
-                  <option value="true">Enabled (Equal team sizes)</option>
-                  <option value="false">Disabled (Free join)</option>
-                </select>
-                <small>Disallows joining largest team in teams mode.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-allow_punch_grab">Classic Punch-Grab Technique</label>
-                <select id="cfg-allow_punch_grab" class="form-control">
-                  <option value="false">Disabled (Standard v1.8 protection)</option>
-                  <option value="true">Enabled (Restores classic damage)</option>
-                </select>
-                <small>Re-enables punches dealing damage shortly before/after grabs.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-coop_campaign">Co-op Campaign</label>
-                <input type="text" id="cfg-coop_campaign" class="form-control" placeholder="Easy">
-                <small>Campaign name (e.g. Easy, Hard, Challenges).</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-coop_level">Co-op Level</label>
-                <input type="text" id="cfg-coop_level" class="form-control" placeholder="Onslaught Training">
-                <small>Initial level within campaign.</small>
+              <div class="panel-card">
+                <div class="mcp-card-top">
+                  <span class="mcp-badge" id="mcp-key-status-badge">Checking...</span>
+                  <h4>Cloud API Key</h4>
+                </div>
+                <p class="mcp-desc">Required for cloud workspace synchronization.</p>
+                <div class="mcp-path mono" id="mcp-key-status">Checked from .env</div>
               </div>
             </div>
-          </div>
 
-          <!-- Category 3: Network & Security -->
-          <div class="config-card">
-            <div class="config-card-header">
-              <span class="category-icon">🔌</span>
-              <div>
-                <h3>Network Ports & Security</h3>
-                <span class="category-desc">UDP hosting port, party capacity, admin IDs, and queue protection</span>
+            <div class="panel-card">
+              <div class="panel-header">
+                <h3>Registered MCP Tools</h3>
+                <span class="badge-subtle">5 Tools Active</span>
               </div>
-            </div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="cfg-port">UDP Port</label>
-                <input type="number" id="cfg-port" class="form-control mono" placeholder="43210">
-                <small>Default is <strong>43210</strong> (required for local LAN discovery).</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-max_party_size">Max Client Devices</label>
-                <input type="number" id="cfg-max_party_size" class="form-control" placeholder="6">
-                <small>Max connecting phones/devices (includes server, so set 1+).</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-protocol_version">Protocol Version</label>
-                <input type="number" id="cfg-protocol_version" class="form-control" placeholder="38">
-                <small>38 supports modern V2 account authentication.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-authenticate_clients">Client Authentication</label>
-                <select id="cfg-authenticate_clients" class="form-control">
-                  <option value="true">Enabled (Verify accounts via master-server)</option>
-                  <option value="false">Disabled (Offline LAN mode)</option>
-                </select>
-                <small>Recommended enabled to prevent spoofing.</small>
-              </div>
-
-              <div class="form-group span-2">
-                <label for="cfg-admins">Server Admin Account IDs</label>
-                <input type="text" id="cfg-admins" class="form-control mono" placeholder='a-YOUR-ID-HERE, a-ANOTHER-ID'>
-                <small>Comma-separated list of account IDs immune to kick votes.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-enable_queue">Player Waiting Queue</label>
-                <select id="cfg-enable_queue" class="form-control">
-                  <option value="true">Enabled (Queue when full)</option>
-                  <option value="false">Disabled (Prevent queue attacks)</option>
-                </select>
-                <small>Queue where players wait for open spots.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-enable_default_kick_voting">Kick Voting</label>
-                <select id="cfg-enable_default_kick_voting" class="form-control">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-                <small>Whether connected players can call kick votes.</small>
-              </div>
+              <div class="mcp-tools-list" id="mcp-tools-container"></div>
             </div>
           </div>
+        </section>
 
-          <!-- Category 4: Lifecycle & Diagnostics -->
-          <div class="config-card">
-            <div class="config-card-header">
-              <span class="category-icon">⏱️</span>
-              <div>
-                <h3>Process Lifecycle & Diagnostics</h3>
-                <span class="category-desc">Scheduled graceful restarts to prevent memory leaks and cache configuration</span>
-              </div>
-            </div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="cfg-clean_exit_minutes">Clean Exit Timer (Minutes)</label>
-                <input type="number" id="cfg-clean_exit_minutes" class="form-control" placeholder="60">
-                <small>Gracefully restarts at end of series to clear memory.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-idle_exit_minutes">Idle Exit Timer (Minutes)</label>
-                <input type="number" id="cfg-idle_exit_minutes" class="form-control" placeholder="20">
-                <small>Restarts server process if empty for minutes.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-unclean_exit_minutes">Hard Exit Limit (Minutes)</label>
-                <input type="number" id="cfg-unclean_exit_minutes" class="form-control" placeholder="90">
-                <small>Hard restart fallback if clean exit is delayed.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="cfg-dont_write_bytecode">Disable .pyc Bytecode</label>
-                <select id="cfg-dont_write_bytecode" class="form-control">
-                  <option value="false">Allow Bytecode (Standard)</option>
-                  <option value="true">Don't write .pyc files</option>
-                </select>
-                <small>Keeps filesystem clean during frequent restarts.</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- RAW TOML EDITOR CONTAINER (Initially hidden) -->
-        <div id="config-raw-container" class="config-raw-wrap" style="display: none;">
-          <div class="raw-editor-header">
-            <span class="raw-label">TOML Source Code:</span>
-            <span class="syntax-status valid" id="toml-syntax-badge">Syntax Valid</span>
-          </div>
-          <textarea id="raw-toml-editor" class="form-control mono raw-editor" spellcheck="false"></textarea>
-        </div>
-
-        <!-- Bottom Floating Save Bar -->
-        <div class="save-bar">
-          <div class="save-bar-info">
-            <span class="save-icon">💾</span>
-            <span id="save-bar-status">Config synced with disk.</span>
-          </div>
-          <div class="save-bar-actions">
-            <button class="btn btn-outline" onclick="loadConfigFile()">Discard & Reload</button>
-            <button class="btn btn-success" onclick="saveConfiguration()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Save Changes</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- =============================================================== -->
-      <!-- TAB 4: LIVE CONSOLE & TERMINAL                                   -->
-      <!-- =============================================================== -->
-      <section id="tab-console" class="tab-pane">
-        <div class="section-intro-with-actions">
-          <div class="section-intro">
-            <h2>Live Server Console & REPL</h2>
-            <p>Real-time stdout/stderr stream from the BombSquad server process with live command execution.</p>
-          </div>
-          <div class="intro-actions">
-            <label class="checkbox-toggle">
-              <input type="checkbox" id="chk-autoscroll" checked>
-              <span>Auto-Scroll</span>
-            </label>
-            <button class="btn btn-ghost btn-sm" onclick="clearConsoleLogs()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              <span>Clear</span>
-            </button>
-            <button class="btn btn-ghost btn-sm" onclick="copyConsoleLogs()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              <span>Copy</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Terminal Card -->
-        <div class="terminal-card">
-          <div class="terminal-header">
-            <div class="mac-buttons">
-              <span class="mac-btn close"></span>
-              <span class="mac-btn min"></span>
-              <span class="mac-btn max"></span>
-            </div>
-            <span class="terminal-title" id="terminal-title">ballistica-server — stdout</span>
-            <span class="terminal-counter" id="terminal-counter">0 lines</span>
-          </div>
-
-          <div class="terminal-body mono" id="terminal-output">
-            <div class="terminal-placeholder">
-              <span class="placeholder-icon">🚀</span>
-              <p>Server is idle. Click <strong>Start Server</strong> to launch the Ballistica engine and stream live output.</p>
-            </div>
-          </div>
-
-          <!-- REPL Command Input Bar -->
-          <div class="terminal-input-bar">
-            <span class="prompt-symbol">&gt;</span>
-            <input type="text" id="terminal-cmd-input" class="form-control mono" placeholder="Enter Python / Server command (e.g. print(ba.app.version) or babase.quit())" onkeydown="handleCommandKey(event)">
-            <button class="btn btn-primary btn-sm" onclick="sendServerCommand()">
-              <span>Send</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Quick REPL Commands -->
-        <div class="quick-commands">
-          <span class="quick-label">Quick Commands:</span>
-          <button class="chip-cmd" onclick="injectCommand('print(ba.app.version)')">print(ba.app.version)</button>
-          <button class="chip-cmd" onclick="injectCommand('print(ba.app.campaigns)')">print(ba.app.campaigns)</button>
-          <button class="chip-cmd" onclick="injectCommand('help')">help</button>
-          <button class="chip-cmd" onclick="injectCommand('babase.quit()')">babase.quit()</button>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Floating Toast Notification -->
-    <div id="toast" class="toast">
-      <span class="toast-icon" id="toast-icon">ℹ️</span>
-      <span class="toast-message" id="toast-message">Notification</span>
+      </main>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <div class="toast-container" id="toast-container"></div>
 </body>
 </html>
