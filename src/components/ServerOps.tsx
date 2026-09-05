@@ -1,4 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+  Folder,
+  FolderOpen,
+  Search,
+  Trash2,
+  Terminal,
+  CornerDownLeft,
+  Settings2,
+  Sliders,
+  CheckCircle2,
+} from 'lucide-react';
 import { api, PresetsData, LogEntry } from '../services/api';
 
 interface ServerOpsProps {
@@ -26,7 +37,11 @@ export const ServerOps: React.FC<ServerOpsProps> = ({
   onClearLogs,
   showToast,
 }) => {
-  const [presets, setPresets] = useState<PresetsData>({ executables: [], plugin_targets: [], configs: [] });
+  const [presets, setPresets] = useState<PresetsData>({
+    executables: [],
+    plugin_targets: [],
+    configs: [],
+  });
   const [filterText, setFilterText] = useState('');
   const [autoScroll, setAutoScroll] = useState(true);
   const [commandInput, setCommandInput] = useState('');
@@ -62,7 +77,7 @@ export const ServerOps: React.FC<ServerOpsProps> = ({
   const handleOpenFinder = async () => {
     if (modsPath) {
       await api.openFolder(modsPath);
-      showToast('Revealed mods folder in file manager');
+      showToast('Revealed mods folder in Finder');
     }
   };
 
@@ -87,168 +102,235 @@ export const ServerOps: React.FC<ServerOpsProps> = ({
   );
 
   return (
-    <div className="server-layout">
-      <div className="panel-card server-paths-card">
-        <div className="panel-header">
-          <h3>Launch Executables &amp; Paths</h3>
-          <span className="badge-subtle">Ready</span>
+    <div className="server-ops-container">
+      {/* Top Configuration & Paths Section */}
+      <section className="macos-card paths-section">
+        <div className="card-header-bar">
+          <div className="card-title-group">
+            <Settings2 size={15} className="card-icon" />
+            <h3 className="card-title">Environment &amp; Executables</h3>
+          </div>
+          <span className="macos-badge success">
+            <CheckCircle2 size={11} /> Configured
+          </span>
         </div>
+
         <div className="paths-grid">
-          <div className="path-field">
-            <label>Server Executable</label>
-            <div className="input-browse-group">
+          {/* Server Executable */}
+          <div className="path-block">
+            <div className="path-label-row">
+              <span className="path-label">Server Executable</span>
+              <span className="path-sublabel">Ballistica Binary</span>
+            </div>
+            <div className="macos-input-group">
               <input
                 type="text"
-                className="form-input mono"
+                className="macos-input mono-text"
                 value={executable}
                 onChange={(e) => setExecutable(e.target.value)}
                 placeholder="/path/to/bombsquad_server"
+                spellCheck={false}
               />
-              <button className="btn btn-secondary" onClick={() => handleBrowse('executable')}>
-                Browse
+              <button
+                className="macos-secondary-btn"
+                onClick={() => handleBrowse('executable')}
+                title="Browse local file system"
+              >
+                <Folder size={13} />
+                <span>Browse</span>
               </button>
             </div>
-            <div className="preset-chips-strip">
-              {presets.executables.map((exe) => (
-                <button
-                  key={exe.path}
-                  className="preset-chip"
-                  onClick={() => {
-                    setExecutable(exe.path);
-                    showToast(`Selected: ${exe.name}`);
-                  }}
-                >
-                  {exe.name}
-                </button>
-              ))}
-            </div>
+            {presets.executables.length > 0 && (
+              <div className="preset-pill-strip">
+                {presets.executables.map((exe) => (
+                  <button
+                    key={exe.path}
+                    className={`preset-pill ${executable === exe.path ? 'selected' : ''}`}
+                    onClick={() => {
+                      setExecutable(exe.path);
+                      showToast(`Selected: ${exe.name}`);
+                    }}
+                  >
+                    {exe.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="path-field">
-            <label>Active Mods Folder</label>
-            <div className="input-browse-group">
+          {/* Active Mods Directory */}
+          <div className="path-block">
+            <div className="path-label-row">
+              <span className="path-label">Active Mods Directory</span>
+              <span className="path-sublabel">ba_root/mods</span>
+            </div>
+            <div className="macos-input-group">
               <input
                 type="text"
-                className="form-input mono"
+                className="macos-input mono-text"
                 value={modsPath}
                 onChange={(e) => setModsPath(e.target.value)}
                 placeholder="~/Library/Application Support/BombSquad/mods"
+                spellCheck={false}
               />
-              <button className="btn btn-secondary" onClick={() => handleBrowse('plugins')}>
-                Browse
+              <button
+                className="macos-secondary-btn"
+                onClick={() => handleBrowse('plugins')}
+                title="Choose folder"
+              >
+                <Folder size={13} />
+                <span>Browse</span>
               </button>
-              <button className="btn btn-ghost" onClick={handleOpenFinder}>
-                Folder
+              <button
+                className="macos-icon-btn"
+                onClick={handleOpenFinder}
+                title="Reveal folder in Finder"
+                aria-label="Reveal in Finder"
+              >
+                <FolderOpen size={14} />
               </button>
             </div>
-            <div className="preset-chips-strip">
-              {presets.plugin_targets.map((pt) => (
-                <button
-                  key={pt.path}
-                  className="preset-chip"
-                  onClick={() => {
-                    setModsPath(pt.path);
-                    showToast(`Selected: ${pt.name}`);
-                  }}
-                >
-                  {pt.name}
-                </button>
-              ))}
-            </div>
+            {presets.plugin_targets.length > 0 && (
+              <div className="preset-pill-strip">
+                {presets.plugin_targets.map((pt) => (
+                  <button
+                    key={pt.path}
+                    className={`preset-pill ${modsPath === pt.path ? 'selected' : ''}`}
+                    onClick={() => {
+                      setModsPath(pt.path);
+                      showToast(`Selected: ${pt.name}`);
+                    }}
+                  >
+                    {pt.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="path-field">
-            <label>Server config.toml</label>
-            <div className="input-browse-group">
+          {/* Server config.toml */}
+          <div className="path-block">
+            <div className="path-label-row">
+              <span className="path-label">Server Settings</span>
+              <span className="path-sublabel">config.toml</span>
+            </div>
+            <div className="macos-input-group">
               <input
                 type="text"
-                className="form-input mono"
+                className="macos-input mono-text"
                 value={configPath}
                 onChange={(e) => setConfigPath(e.target.value)}
                 placeholder="/path/to/config.toml"
+                spellCheck={false}
               />
-              <button className="btn btn-secondary" onClick={() => handleBrowse('config')}>
-                Browse
+              <button
+                className="macos-secondary-btn"
+                onClick={() => handleBrowse('config')}
+                title="Browse TOML config file"
+              >
+                <Sliders size={13} />
+                <span>Browse</span>
               </button>
             </div>
-            <div className="preset-chips-strip">
-              {presets.configs.map((cfg) => (
-                <button
-                  key={cfg.path}
-                  className="preset-chip"
-                  onClick={() => {
-                    setConfigPath(cfg.path);
-                    showToast(`Selected: ${cfg.name}`);
-                  }}
-                >
-                  {cfg.name}
-                </button>
-              ))}
-            </div>
+            {presets.configs.length > 0 && (
+              <div className="preset-pill-strip">
+                {presets.configs.map((cfg) => (
+                  <button
+                    key={cfg.path}
+                    className={`preset-pill ${configPath === cfg.path ? 'selected' : ''}`}
+                    onClick={() => {
+                      setConfigPath(cfg.path);
+                      showToast(`Selected: ${cfg.name}`);
+                    }}
+                  >
+                    {cfg.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Terminal & REPL */}
-      <div className="panel-card terminal-card">
-        <div className="terminal-header">
-          <div className="term-title-wrap">
-            <span className="term-dot live" />
-            <span className="term-title">Console Output</span>
-            <span className="term-counter">{totalLogs} events</span>
+      {/* Terminal & Stdin Section (Ghostty / Warp inspired) */}
+      <section className="macos-terminal-window">
+        <div className="terminal-topbar">
+          <div className="terminal-title-group">
+            <Terminal size={14} className="term-icon" />
+            <span className="term-window-title">Ballistica Console</span>
+            <span className="term-event-badge">{totalLogs} events</span>
           </div>
-          <div className="term-actions">
-            <input
-              type="text"
-              className="term-search"
-              placeholder="Filter..."
-              value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
-            />
-            <label className="term-toggle">
+
+          <div className="terminal-controls">
+            <div className="terminal-search-wrapper">
+              <Search size={13} className="search-icon" />
+              <input
+                type="text"
+                className="terminal-search-input"
+                placeholder="Filter logs..."
+                value={filterText}
+                onChange={(e) => setFilterText(e.target.value)}
+              />
+            </div>
+
+            <label className="terminal-switch-label" title="Toggle automatic scrolling to latest log">
               <input
                 type="checkbox"
+                className="macos-switch"
                 checked={autoScroll}
                 onChange={(e) => setAutoScroll(e.target.checked)}
               />
               <span>Auto-scroll</span>
             </label>
-            <button className="btn btn-xs btn-ghost" onClick={onClearLogs}>
-              Clear
+
+            <button
+              className="terminal-action-btn"
+              onClick={onClearLogs}
+              title="Clear terminal buffer"
+            >
+              <Trash2 size={13} />
+              <span>Clear</span>
             </button>
           </div>
         </div>
 
-        <div className="terminal-body">
+        <div className="terminal-viewport custom-scroll">
           {filteredLogs.length === 0 ? (
-            <div className="term-line dim">
-              BombStation Studio console ready. Select executable and click Start Server.
+            <div className="terminal-empty-msg">
+              <span className="empty-prompt">❯</span> BombStation ready. Configure executable above and click <strong>Start Server</strong>.
             </div>
           ) : (
             filteredLogs.map((item) => (
-              <div key={item.id} className={`term-line ${item.severity}`}>
-                [{item.timestamp}] {item.text}
+              <div key={item.id} className={`terminal-entry ${item.severity}`}>
+                <span className="log-timestamp">[{item.timestamp}]</span>
+                <span className="log-message">{item.text}</span>
               </div>
             ))
           )}
           <div ref={terminalEndRef} />
         </div>
 
-        <div className="terminal-stdin">
-          <span className="stdin-prompt">&gt;</span>
+        <div className="terminal-repl-bar">
+          <span className="repl-prompt-symbol">❯</span>
           <input
             type="text"
-            className="stdin-input"
-            placeholder="Execute Python / Ballistica REPL command — Press Enter"
+            className="repl-input"
+            placeholder="Execute Ballistica Python REPL command..."
             value={commandInput}
             onChange={(e) => setCommandInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendCommand()}
+            spellCheck={false}
           />
-          <button className="btn btn-secondary btn-sm" onClick={handleSendCommand}>
-            Send
+          <button
+            className="repl-send-btn"
+            onClick={handleSendCommand}
+            disabled={!commandInput.trim()}
+          >
+            <span>Run</span>
+            <CornerDownLeft size={12} />
           </button>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

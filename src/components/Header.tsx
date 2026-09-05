@@ -1,9 +1,12 @@
 import React from 'react';
+import { Play, Square, RotateCw, PanelLeft } from 'lucide-react';
 import { ServerStatus } from '../services/api';
 
 interface HeaderProps {
   activeTabTitle: string;
   serverStatus: ServerStatus;
+  sidebarCollapsed: boolean;
+  onToggleSidebar: () => void;
   onStartServer: () => void;
   onStopServer: () => void;
   onRestartServer: () => void;
@@ -12,6 +15,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   activeTabTitle,
   serverStatus,
+  sidebarCollapsed,
+  onToggleSidebar,
   onStartServer,
   onStopServer,
   onRestartServer,
@@ -25,54 +30,76 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="studio-header">
-      <div className="header-left">
-        <div className="breadcrumb">
-          <span className="crumb-brand">BombStation Studio</span>
-          <span className="crumb-sep">/</span>
-          <span className="crumb-view">{activeTabTitle}</span>
+    <header className="macos-header" data-tauri-drag-region>
+      <div className="header-left" data-tauri-drag-region>
+        {sidebarCollapsed && (
+          <button
+            className="header-sidebar-toggle"
+            onClick={onToggleSidebar}
+            title="Expand Sidebar (⌘B)"
+            aria-label="Expand sidebar"
+          >
+            <PanelLeft size={16} />
+          </button>
+        )}
+
+        <div className="header-title-badge">
+          <span className="active-view-name">{activeTabTitle}</span>
         </div>
       </div>
 
-      <div className="header-center">
-        <div className="global-telemetry-pill">
-          <span className={`pill-dot ${serverStatus.running ? 'running' : ''}`} />
-          <span className="pill-label">{serverStatus.running ? 'RUNNING' : 'STOPPED'}</span>
-          <span className="pill-sep">•</span>
-          <span className="pill-uptime">{formatUptime(serverStatus.uptime_seconds)}</span>
-          <span className="pill-sep">•</span>
-          <span className="pill-port">Port: 43210</span>
+      <div className="header-center" data-tauri-drag-region>
+        <div className={`macos-telemetry-capsule ${serverStatus.running ? 'live' : 'idle'}`}>
+          <div className="capsule-status-dot">
+            <span className={`status-dot-core ${serverStatus.running ? 'online' : ''}`} />
+            {serverStatus.running && <span className="status-dot-pulse" />}
+          </div>
+          <span className="capsule-status-label">
+            {serverStatus.running ? 'ONLINE' : 'OFFLINE'}
+          </span>
+          <span className="capsule-divider" />
+          <span className="capsule-clock">{formatUptime(serverStatus.uptime_seconds)}</span>
+          <span className="capsule-divider" />
+          <span className="capsule-detail">Port 43210</span>
           {serverStatus.running && serverStatus.pid && (
             <>
-              <span className="pill-sep">•</span>
-              <span className="pill-pid">PID: {serverStatus.pid}</span>
+              <span className="capsule-divider" />
+              <span className="capsule-detail pid">PID {serverStatus.pid}</span>
             </>
           )}
         </div>
       </div>
 
       <div className="header-right">
-        <div className="server-action-group">
+        <div className="macos-server-controls">
+          {!serverStatus.running ? (
+            <button
+              className="macos-btn macos-btn-primary"
+              onClick={onStartServer}
+              title="Launch Ballistica Dedicated Server"
+            >
+              <Play size={13} fill="currentColor" />
+              <span>Start Server</span>
+            </button>
+          ) : (
+            <button
+              className="macos-btn macos-btn-danger"
+              onClick={onStopServer}
+              title="Terminate running server process"
+            >
+              <Square size={13} fill="currentColor" />
+              <span>Stop Server</span>
+            </button>
+          )}
+
           <button
-            className="btn btn-primary"
-            onClick={onStartServer}
-            disabled={serverStatus.running}
-          >
-            Start Server
-          </button>
-          <button
-            className="btn btn-secondary"
-            onClick={onStopServer}
-            disabled={!serverStatus.running}
-          >
-            Stop
-          </button>
-          <button
-            className="btn btn-ghost"
+            className="macos-btn macos-btn-icon"
             onClick={onRestartServer}
             disabled={!serverStatus.running}
+            title={serverStatus.running ? 'Restart Ballistica Server' : 'Server is not running'}
+            aria-label="Restart Server"
           >
-            Restart
+            <RotateCw size={14} />
           </button>
         </div>
       </div>

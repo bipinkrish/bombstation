@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
+import {
+  FileCode,
+  Plus,
+  Layers,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Package,
+  Upload,
+  ChevronUp,
+  ChevronDown,
+} from 'lucide-react';
 import { api, StudioTemplate, ValidationReport } from '../services/api';
 
 interface CodeStudioProps {
@@ -125,70 +137,92 @@ export const CodeStudio: React.FC<CodeStudioProps> = ({
   };
 
   return (
-    <div className="code-studio-layout">
-      <div className="code-toolbar">
-        <div className="code-toolbar-left">
-          <span className="toolbar-label">File:</span>
-          <select
-            className="form-control-sm"
-            value={activeFile || ''}
-            onChange={(e) => e.target.value && loadFile(e.target.value)}
-          >
-            <option value="">-- Open File from Mods --</option>
-            {filesList.map((f) => (
-              <option key={f.path} value={f.path}>
-                {f.name} {f.api ? `(API ${f.api})` : ''}
-              </option>
-            ))}
-          </select>
+    <div className="code-studio-container">
+      {/* IDE Top Toolbar */}
+      <div className="macos-card code-studio-toolbar">
+        <div className="toolbar-left-cluster">
+          <div className="toolbar-picker-wrap">
+            <FileCode size={13} className="picker-icon" />
+            <select
+              className="macos-toolbar-select"
+              value={activeFile || ''}
+              onChange={(e) => e.target.value && loadFile(e.target.value)}
+            >
+              <option value="">-- Active Mods Scripts --</option>
+              {filesList.map((f) => (
+                <option key={f.path} value={f.path}>
+                  {f.name} {f.api ? `(API ${f.api})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <button
-            className="btn btn-secondary btn-sm"
+            className="macos-secondary-btn mini-btn"
             onClick={() => {
               setCode(DEFAULT_CODE);
               setActiveFile(null);
               showToast('Created new script workspace');
             }}
+            title="Create blank script"
           >
-            + New
+            <Plus size={13} />
+            <span>New</span>
           </button>
 
-          <span className="toolbar-label" style={{ marginLeft: '6px' }}>
-            Template:
-          </span>
-          <select
-            className="form-control-sm"
-            onChange={(e) => handleTemplateSelect(e.target.value)}
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Choose Starter...
-            </option>
-            {templates.map((tpl) => (
-              <option key={tpl.id} value={tpl.id}>
-                {tpl.name}
+          <div className="toolbar-separator" />
+
+          <div className="toolbar-picker-wrap">
+            <Layers size={13} className="picker-icon" />
+            <select
+              className="macos-toolbar-select"
+              onChange={(e) => handleTemplateSelect(e.target.value)}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Choose Starter Template...
               </option>
-            ))}
-          </select>
+              {templates.map((tpl) => (
+                <option key={tpl.id} value={tpl.id}>
+                  {tpl.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="code-toolbar-right">
-          <button className="btn btn-secondary btn-sm" onClick={() => validateCode()}>
-            Validate Syntax
-          </button>
+        <div className="toolbar-right-cluster">
           <button
-            className="btn btn-secondary btn-sm"
+            className="macos-secondary-btn mini-btn"
+            onClick={() => validateCode()}
+            title="Inspect AST for Ballistica API 9 conformance"
+          >
+            <CheckCircle2 size={13} />
+            <span>Validate</span>
+          </button>
+
+          <button
+            className="macos-secondary-btn mini-btn"
             onClick={handleExport}
             title="Build distribution ZIP package via scripts/build_export.py"
           >
-            Build &amp; Export
+            <Package size={13} />
+            <span>Build &amp; Export</span>
           </button>
-          <button className="btn btn-primary btn-sm" onClick={handleDeploy}>
-            Save &amp; Deploy
+
+          <button
+            className="macos-btn macos-btn-primary mini-btn"
+            onClick={handleDeploy}
+            title="Save and deploy directly into mods folder"
+          >
+            <Upload size={13} />
+            <span>Deploy</span>
           </button>
         </div>
       </div>
 
-      <div className="editor-workspace">
+      {/* Editor Body */}
+      <div className="monaco-host-wrapper">
         <Editor
           height="100%"
           defaultLanguage="python"
@@ -197,58 +231,78 @@ export const CodeStudio: React.FC<CodeStudioProps> = ({
           onChange={(val) => setCode(val || '')}
           options={{
             fontSize: 13,
-            fontFamily: "'JetBrains Mono', monospace",
-            minimap: { enabled: true },
+            fontFamily: "'JetBrains Mono', 'SF Mono', Menlo, monospace",
+            minimap: { enabled: true, maxColumn: 80 },
             automaticLayout: true,
-            lineHeight: 20,
-            padding: { top: 12, bottom: 12 },
+            lineHeight: 21,
+            padding: { top: 14, bottom: 14 },
+            renderLineHighlight: 'all',
+            cursorBlinking: 'smooth',
+            smoothScrolling: true,
           }}
         />
       </div>
 
-      {/* Validation Tray */}
-      <div className={`diagnostic-tray ${trayOpen ? 'open' : ''}`}>
-        <div className="tray-header" onClick={() => setTrayOpen(!trayOpen)}>
-          <div className="tray-title-group">
+      {/* Slide-up Diagnostics Tray */}
+      <div className={`diagnostic-dock ${trayOpen ? 'open' : ''}`}>
+        <div className="dock-header" onClick={() => setTrayOpen(!trayOpen)}>
+          <div className="dock-title-cluster">
             {validation ? (
               !validation.valid ? (
-                <span className="diag-status-pill error">✗ Syntax Error</span>
+                <span className="macos-badge danger">
+                  <XCircle size={11} /> Syntax Error
+                </span>
               ) : validation.warnings && validation.warnings.length > 0 ? (
-                <span className="diag-status-pill warn">⚠ Notice</span>
+                <span className="macos-badge warning">
+                  <AlertTriangle size={11} /> Notice
+                </span>
               ) : (
-                <span className="diag-status-pill success">✓ Valid API 9</span>
+                <span className="macos-badge success">
+                  <CheckCircle2 size={11} /> Valid API 9
+                </span>
               )
             ) : (
-              <span className="diag-status-pill success">✓ Ready</span>
+              <span className="macos-badge neutral">
+                <CheckCircle2 size={11} /> AST Validator Ready
+              </span>
             )}
-            <span className="diag-text">
+            <span className="dock-summary">
               {validation
                 ? !validation.valid
                   ? `Line ${validation.syntax_error?.line}: ${validation.syntax_error?.message}`
                   : validation.warnings && validation.warnings.length > 0
                   ? `${validation.warnings.length} Ballistica API notice(s)`
                   : `Cleanly targets Ballistica API ${validation.api_target || 9}.`
-                : 'Ballistica API 9 Validator ready.'}
+                : 'Ballistica API 9 syntax validation active.'}
             </span>
+          </div>
+
+          <div className="dock-toggle-indicator">
+            {trayOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </div>
         </div>
 
         {trayOpen && validation && (
-          <div className="tray-body">
+          <div className="dock-content-area custom-scroll">
             {!validation.valid && validation.syntax_error && (
-              <div className="diag-item error">
-                Line {validation.syntax_error.line}: {validation.syntax_error.message} → "
-                {validation.syntax_error.text}"
+              <div className="diag-entry error">
+                <XCircle size={13} />
+                <span>
+                  Line {validation.syntax_error.line}: {validation.syntax_error.message} → "
+                  {validation.syntax_error.text}"
+                </span>
               </div>
             )}
             {validation.warnings?.map((w, idx) => (
-              <div key={idx} className="diag-item warn">
-                • {w}
+              <div key={idx} className="diag-entry warning">
+                <AlertTriangle size={13} />
+                <span>{w}</span>
               </div>
             ))}
             {validation.info?.map((inf, idx) => (
-              <div key={idx} className="diag-item info">
-                ✓ {inf}
+              <div key={idx} className="diag-entry success">
+                <CheckCircle2 size={13} />
+                <span>{inf}</span>
               </div>
             ))}
           </div>

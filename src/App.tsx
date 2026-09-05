@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavigationRail, TabId } from './components/NavigationRail';
+import { Sidebar, TabId } from './components/Sidebar';
 import { Header } from './components/Header';
 import { ServerOps } from './components/ServerOps';
 import { ConfigStudio } from './components/ConfigStudio';
@@ -17,6 +17,7 @@ interface Toast {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabId>('server');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [serverStatus, setServerStatus] = useState<ServerStatus>({
     running: false,
     pid: null,
@@ -43,6 +44,18 @@ export function App() {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 2800);
   };
+
+  // Keyboard shortcut listener for sidebar toggle (Cmd+B / Ctrl+B)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        setSidebarCollapsed((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Initial load
   useEffect(() => {
@@ -131,31 +144,35 @@ export function App() {
 
   const tabTitles: { [k in TabId]: string } = {
     server: 'Server Operations',
-    config: 'Server Config',
-    plugins: 'Plugins & Mods',
-    code: 'Code Studio',
-    scene: '3D Scene & Assets',
+    config: 'Server Configuration',
+    plugins: 'Plugins & Mods Manager',
+    code: 'Ballistica Code Studio',
+    scene: '3D Arena & Assets',
     mcp: 'AI & MCP Hub',
   };
 
   return (
-    <div className="studio-shell">
-      <NavigationRail
+    <div className="macos-app-container">
+      <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
         serverRunning={serverStatus.running}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
       />
 
-      <div className="studio-main">
+      <div className="macos-main-area">
         <Header
           activeTabTitle={tabTitles[activeTab]}
           serverStatus={serverStatus}
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
           onStartServer={handleStartServer}
           onStopServer={handleStopServer}
           onRestartServer={handleRestartServer}
         />
 
-        <main className="studio-viewport">
+        <main className="macos-content-viewport">
           {activeTab === 'server' && (
             <ServerOps
               executable={executable}
@@ -208,10 +225,11 @@ export function App() {
         </main>
       </div>
 
-      <div className="toast-container">
+      <div className="macos-toast-stack">
         {toasts.map((t) => (
-          <div key={t.id} className="toast">
-            {t.message}
+          <div key={t.id} className="macos-toast-item">
+            <span className="toast-dot" />
+            <span className="toast-msg">{t.message}</span>
           </div>
         ))}
       </div>

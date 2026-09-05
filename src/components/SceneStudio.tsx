@@ -355,27 +355,29 @@ export const SceneStudio: React.FC<SceneStudioProps> = ({
   };
 
   return (
-    <div className="scene-studio-layout">
-      <div className="scene-viewport-area">
-        <div ref={containerRef} className="scene-canvas-wrap" />
+    <div className="scene-studio-container">
+      <div className="scene-canvas-container">
+        <div ref={containerRef} className="scene-three-viewport" />
 
-        {/* Floating 3D Toolbar */}
-        <div className="scene-floating-toolbar">
-          <div className="tool-group">
-            <span className="tool-title">Preset:</span>
+        {/* Frosted Glass Floating HUD */}
+        <div className="scene-floating-hud">
+          <div className="hud-group">
+            <span className="hud-label">Arena</span>
             <select
-              className="form-control-xs"
+              className="macos-toolbar-select mini"
               value={preset}
               onChange={(e) => handlePresetChange(e.target.value as any)}
             >
               <option value="diorama">Diorama Base</option>
               <option value="rampage">Floating Rock</option>
-              <option value="football">Pitch</option>
-              <option value="crag">Castle</option>
+              <option value="football">Stadium Pitch</option>
+              <option value="crag">Castle Crag</option>
             </select>
           </div>
-          <div className="tool-sep" />
-          <div className="tool-group">
+
+          <div className="hud-divider" />
+
+          <div className="hud-group">
             <input
               ref={fileInputRef}
               type="file"
@@ -384,109 +386,121 @@ export const SceneStudio: React.FC<SceneStudioProps> = ({
               onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
             />
             <button
-              className="tool-btn"
+              className="hud-btn"
               onClick={() => fileInputRef.current?.click()}
-              title="Import Ballistica 3D Mesh (.bob) or Collision Hull (.cob)"
+              title="Import Ballistica 3D Mesh (.bob) or Collision Mesh (.cob)"
             >
-              📂 Import .bob / .cob
+              <span>Import .bob / .cob</span>
             </button>
-            <button className="tool-btn ghost" onClick={() => loadSample('bob')}>
+            <button className="hud-btn ghost" onClick={() => loadSample('bob')}>
               Sample .bob
             </button>
-            <button className="tool-btn ghost" onClick={() => loadSample('cob')}>
+            <button className="hud-btn ghost" onClick={() => loadSample('cob')}>
               Sample .cob
             </button>
           </div>
-          <div className="tool-sep" />
-          <div className="tool-group">
-            <button className="tool-btn" onClick={() => addNode('spawn', 1)}>
+
+          <div className="hud-divider" />
+
+          <div className="hud-group">
+            <button className="hud-btn" onClick={() => addNode('spawn', 1)}>
               + Spawn 1
             </button>
-            <button className="tool-btn" onClick={() => addNode('spawn', 2)}>
+            <button className="hud-btn" onClick={() => addNode('spawn', 2)}>
               + Spawn 2
             </button>
-            <button className="tool-btn" onClick={() => addNode('spawn_ffa')}>
+            <button className="hud-btn" onClick={() => addNode('spawn_ffa')}>
               + FFA
             </button>
-            <button className="tool-btn" onClick={() => addNode('flag', 1)}>
+            <button className="hud-btn" onClick={() => addNode('flag', 1)}>
               + Flag 1
             </button>
-            <button className="tool-btn" onClick={() => addNode('flag', 2)}>
+            <button className="hud-btn" onClick={() => addNode('flag', 2)}>
               + Flag 2
             </button>
-            <button className="tool-btn" onClick={() => addNode('powerup')}>
+            <button className="hud-btn" onClick={() => addNode('powerup')}>
               + Powerup
             </button>
           </div>
         </div>
 
-        <div className="scene-hint-badge">
-          Left Drag: Orbit • Right Drag: Pan • Scroll: Zoom • Drop .bob/.cob files onto viewport
+        <div className="scene-floating-hint">
+          Left Drag: Orbit • Right Drag: Pan • Scroll: Zoom • Drag &amp; drop .bob/.cob onto arena
         </div>
       </div>
 
-      {/* Inspector Sidebar */}
-      <aside className="scene-inspector-sidebar">
-        <div className="inspector-header">
-          <h3>Node Coordinates</h3>
-          <span className="badge-subtle">{nodes.length} nodes</span>
+      {/* Xcode/Figma-Style Inspector Sidebar */}
+      <aside className="macos-card scene-inspector-dock">
+        <div className="inspector-dock-header">
+          <div className="card-title-group">
+            <h4 className="card-title">Scene Hierarchy</h4>
+          </div>
+          <span className="card-counter-pill">{nodes.length} markers</span>
         </div>
 
-        <div className="inspector-node-list">
+        <div className="inspector-dock-content custom-scroll">
           {nodes.map((node, index) => (
-            <div key={index} className="node-item-card">
-              <div className="node-item-top">
-                <span className="node-item-title">{node.title}</span>
-                <button className="btn btn-xs btn-ghost" onClick={() => removeNode(index)}>
+            <div key={index} className="inspector-node-card">
+              <div className="node-card-top">
+                <span className="node-card-title mono-text">{node.title}</span>
+                <button
+                  className="node-delete-btn"
+                  onClick={() => removeNode(index)}
+                  title="Remove marker"
+                  aria-label="Remove node"
+                >
                   ✕
                 </button>
               </div>
-              <div className="node-coords-inputs">
+              <div className="node-axes-grid">
                 {(['x', 'y', 'z'] as const).map((axis) => (
-                  <div key={axis} className="coord-box">
-                    <span className="coord-label">{axis.toUpperCase()}</span>
+                  <div key={axis} className="axis-box">
+                    <span className={`axis-tag ${axis}`}>{axis.toUpperCase()}</span>
                     <input
                       type="number"
                       step="0.1"
-                      className="coord-val"
+                      className="axis-input mono-text"
                       value={node.position[axis]}
-                      onChange={(e) => updateNodeCoord(index, axis, parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        updateNodeCoord(index, axis, parseFloat(e.target.value) || 0)
+                      }
                     />
                   </div>
                 ))}
               </div>
             </div>
           ))}
+
           {nodes.length === 0 && (
-            <div className="empty-node-state">
-              <p>No nodes placed yet.</p>
-              <span className="dim">Add spawns, flags, or drop a .bob model above.</span>
+            <div className="empty-inspector-state">
+              <p>No markers placed.</p>
+              <span>Add team spawns, flags, or drop a Ballistica asset into the scene.</span>
             </div>
           )}
         </div>
 
-        <div className="inspector-export-section">
-          <div className="export-header">
-            <h4>Ballistica Python Dict</h4>
-            <div className="export-actions">
+        <div className="inspector-export-dock">
+          <div className="export-dock-header">
+            <span className="export-heading">Python Dict Preview</span>
+            <div className="export-dock-buttons">
               <button
-                className="btn btn-xs btn-secondary"
+                className="macos-secondary-btn mini-btn"
                 onClick={() => {
                   navigator.clipboard.writeText(generatePythonDict());
                   showToast('Copied coordinates to clipboard');
                 }}
               >
-                Copy Dict
+                Copy
               </button>
               <button
-                className="btn btn-xs btn-primary"
+                className="macos-btn macos-btn-primary mini-btn"
                 onClick={() => onSendToCodeStudio(generatePythonDict())}
               >
                 Send to Code
               </button>
             </div>
           </div>
-          <pre className="export-code-preview mono">{generatePythonDict()}</pre>
+          <pre className="export-code-box mono-text custom-scroll">{generatePythonDict()}</pre>
         </div>
       </aside>
     </div>

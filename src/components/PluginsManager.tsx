@@ -1,4 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Puzzle,
+  FolderOpen,
+  Download,
+  Check,
+  Trash2,
+  Code2,
+  RefreshCw,
+  Search,
+  Box,
+  FileCode2,
+} from 'lucide-react';
 import { api, PluginsResponse } from '../services/api';
 
 interface PluginsManagerProps {
@@ -17,6 +29,8 @@ export const PluginsManager: React.FC<PluginsManagerProps> = ({
     plugins: [],
     custom_plugins: [],
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterMode, setFilterMode] = useState<'all' | 'installed' | 'available'>('all');
 
   useEffect(() => {
     loadPlugins();
@@ -76,56 +90,138 @@ export const PluginsManager: React.FC<PluginsManagerProps> = ({
 
   const handleOpenFolder = async () => {
     await api.openFolder(modsPath);
-    showToast('Revealed mods folder in file manager');
+    showToast('Revealed mods folder in Finder');
   };
 
+  const filteredPlugins = data.plugins.filter((p) => {
+    const matchesSearch =
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.filename.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+    if (filterMode === 'installed') return p.is_installed;
+    if (filterMode === 'available') return !p.is_installed;
+    return true;
+  });
+
+  const installedCount = data.plugins.filter((p) => p.is_installed).length;
+
   return (
-    <div className="plugins-layout">
-      <div className="plugins-top-bar">
-        <div>
-          <h2>Plugins &amp; Mod Management</h2>
-          <p className="section-desc">Manage verified repository plugins and user mods in target folder.</p>
+    <div className="plugins-studio-container">
+      {/* Top Header Card */}
+      <div className="macos-card plugins-header-card">
+        <div className="plugins-intro">
+          <div className="plugins-badge-row">
+            <span className="macos-badge purple">
+              <Puzzle size={11} /> Mod Catalog
+            </span>
+            <span className="target-folder-badge" title={modsPath}>
+              {modsPath.split('/').slice(-2).join('/') || 'mods'}
+            </span>
+          </div>
+          <h2 className="plugins-title">Plugins &amp; Mod Management</h2>
+          <p className="plugins-desc">
+            Install curated Ballistica API 9 plugins or inspect custom mods active in your BombSquad directory.
+          </p>
         </div>
-        <div className="plugins-top-actions">
-          <button className="btn btn-secondary btn-sm" onClick={handleOpenFolder}>
-            Folder
+
+        <div className="plugins-actions-row">
+          <div className="plugins-search-box">
+            <Search size={14} className="search-icon" />
+            <input
+              type="text"
+              className="plugins-search-input"
+              placeholder="Search plugins, mods, APIs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="segmented-control mini">
+            <button
+              className={`segmented-tab ${filterMode === 'all' ? 'active' : ''}`}
+              onClick={() => setFilterMode('all')}
+            >
+              All ({data.plugins.length})
+            </button>
+            <button
+              className={`segmented-tab ${filterMode === 'installed' ? 'active' : ''}`}
+              onClick={() => setFilterMode('installed')}
+            >
+              Installed ({installedCount})
+            </button>
+          </div>
+
+          <button
+            className="macos-secondary-btn"
+            onClick={handleOpenFolder}
+            title="Reveal in Finder"
+          >
+            <FolderOpen size={13} />
+            <span>Finder</span>
           </button>
-          <button className="btn btn-primary btn-sm" onClick={handleInstallAll}>
-            Install All
+
+          <button
+            className="macos-btn macos-btn-primary"
+            onClick={handleInstallAll}
+            title="Install all repository mods"
+          >
+            <Download size={13} />
+            <span>Install All</span>
           </button>
         </div>
       </div>
 
-      <div className="plugins-columns-grid">
-        <div className="panel-card">
-          <div className="panel-header">
-            <h3>Repository Plugins</h3>
+      {/* Grid: Curated Catalog & Active Mods */}
+      <div className="plugins-columns-layout">
+        {/* Curated Plugins */}
+        <div className="macos-card plugins-section-card">
+          <div className="card-header-bar">
+            <div className="card-title-group">
+              <Puzzle size={15} className="card-icon" />
+              <h3 className="card-title">Curated Plugins</h3>
+            </div>
+            <span className="card-counter-pill">{filteredPlugins.length} available</span>
           </div>
-          <div className="plugins-list">
-            {data.plugins.map((p) => (
-              <div key={p.filename} className="plugin-card">
-                <div className="plugin-info">
-                  <h4>{p.name}</h4>
-                  <p>{p.description}</p>
-                  <div className="plugin-meta">
-                    <span className="badge-subtle">API {p.api_target}</span>
-                    <span className="badge-subtle">{p.filename}</span>
-                  </div>
+
+          <div className="plugin-cards-list custom-scroll">
+            {filteredPlugins.map((p) => (
+              <div key={p.filename} className="macos-plugin-item">
+                <div className="plugin-icon-avatar">
+                  <Box size={18} />
                 </div>
-                <div className="plugin-action">
+                <div className="plugin-meta-info">
+                  <div className="plugin-headline">
+                    <h4 className="plugin-name">{p.name}</h4>
+                    <span className="api-chip">API {p.api_target}</span>
+                  </div>
+                  <p className="plugin-description">{p.description}</p>
+                  <span className="plugin-filename-tag mono-text">{p.filename}</span>
+                </div>
+
+                <div className="plugin-item-actions">
                   {p.is_installed ? (
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => handleUninstall(p.filename)}
-                    >
-                      Uninstall
-                    </button>
+                    <>
+                      <span className="installed-indicator">
+                        <Check size={12} /> Active
+                      </span>
+                      <button
+                        className="macos-action-chip danger"
+                        onClick={() => handleUninstall(p.filename)}
+                        title="Uninstall from active mods"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </>
                   ) : (
                     <button
-                      className="btn btn-primary btn-sm"
+                      className="macos-btn macos-btn-primary mini-btn"
                       onClick={() => handleInstall(p.filename)}
+                      title="Install into mods folder"
                     >
-                      Install
+                      <Download size={12} />
+                      <span>Install</span>
                     </button>
                   )}
                 </div>
@@ -134,54 +230,80 @@ export const PluginsManager: React.FC<PluginsManagerProps> = ({
           </div>
         </div>
 
-        <div className="panel-card">
-          <div className="panel-header">
-            <h3>Installed Mods in Target Directory</h3>
-            <button className="btn btn-xs btn-ghost" onClick={loadPlugins}>
-              Refresh
+        {/* Target Directory Active Mods */}
+        <div className="macos-card plugins-section-card">
+          <div className="card-header-bar">
+            <div className="card-title-group">
+              <FileCode2 size={15} className="card-icon" />
+              <h3 className="card-title">Target Directory Mods</h3>
+            </div>
+            <button
+              className="macos-icon-btn"
+              onClick={loadPlugins}
+              title="Refresh directory scan"
+              aria-label="Refresh"
+            >
+              <RefreshCw size={13} />
             </button>
           </div>
-          <div className="plugins-list">
+
+          <div className="plugin-cards-list custom-scroll">
+            {/* Installed repository plugins */}
             {data.plugins
               .filter((p) => p.is_installed)
               .map((p) => (
-                <div key={p.filename} className="plugin-card">
-                  <div className="plugin-info">
-                    <h4>{p.name}</h4>
-                    <p>{p.filename} • Active in mods</p>
+                <div key={p.filename} className="macos-plugin-item installed-row">
+                  <div className="plugin-icon-avatar active">
+                    <Check size={16} />
                   </div>
-                  <div className="plugin-action">
+                  <div className="plugin-meta-info">
+                    <h4 className="plugin-name">{p.name}</h4>
+                    <p className="plugin-description mono-text">{p.filename}</p>
+                  </div>
+                  <div className="plugin-item-actions">
                     <button
-                      className="btn btn-secondary btn-xs"
+                      className="macos-action-chip"
                       onClick={() => onEditPluginInCodeStudio(p.filename)}
+                      title="Open and edit in Code Studio"
                     >
-                      Edit
+                      <Code2 size={12} />
+                      <span>Edit</span>
                     </button>
                   </div>
                 </div>
               ))}
 
+            {/* Custom mods created by user */}
             {data.custom_plugins.map((c) => (
-              <div key={c.path} className="plugin-card">
-                <div className="plugin-info">
-                  <h4>{c.name}</h4>
-                  <p>
+              <div key={c.path} className="macos-plugin-item custom-mod-row">
+                <div className="plugin-icon-avatar custom">
+                  <FileCode2 size={16} />
+                </div>
+                <div className="plugin-meta-info">
+                  <h4 className="plugin-name">{c.name}</h4>
+                  <p className="plugin-description">
                     {(c.size / 1024).toFixed(1)} KB • Modified{' '}
-                    {new Date(c.modified * 1000).toLocaleTimeString()}
+                    {new Date(c.modified * 1000).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </p>
                 </div>
-                <div className="plugin-action">
+                <div className="plugin-item-actions">
                   <button
-                    className="btn btn-secondary btn-xs"
+                    className="macos-action-chip"
                     onClick={() => onEditPluginInCodeStudio(c.name)}
+                    title="Open in Code Studio"
                   >
-                    Edit
+                    <Code2 size={12} />
+                    <span>Edit</span>
                   </button>
                   <button
-                    className="btn btn-ghost btn-xs"
+                    className="macos-action-chip danger"
                     onClick={() => handleUninstall(c.name)}
+                    title="Delete custom mod"
                   >
-                    Delete
+                    <Trash2 size={12} />
                   </button>
                 </div>
               </div>
@@ -189,9 +311,11 @@ export const PluginsManager: React.FC<PluginsManagerProps> = ({
 
             {data.plugins.filter((p) => p.is_installed).length === 0 &&
               data.custom_plugins.length === 0 && (
-                <p className="dim" style={{ padding: '10px' }}>
-                  No mods detected in target directory.
-                </p>
+                <div className="empty-plugins-state">
+                  <Puzzle size={28} className="empty-icon" />
+                  <p>No mods detected in target directory.</p>
+                  <span>Install curated plugins or add custom Python scripts to your mods folder.</span>
+                </div>
               )}
           </div>
         </div>
